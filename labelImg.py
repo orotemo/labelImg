@@ -160,9 +160,6 @@ class MainWindow(QMainWindow, WindowMixin):
         openNextImg = action('&Next Image', self.openNextImg,
                 'n', 'next', u'Open Next')
 
-        openPrevImg = action('&Prev Image', self.openPrevImg,
-                'p', 'prev', u'Open Prev')
-
         save = action('&Save', self.saveFile,
                 'Ctrl+S', 'save', u'Save labels to file', enabled=False)
         saveAs = action('&Save As', self.saveFileAs,
@@ -299,7 +296,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         self.tools = self.toolbar('Tools')
         self.actions.beginner = (
-            open, opendir, openNextImg, openPrevImg, save, None, create, copy, delete, None,
+            open, opendir, openNextImg, save, None, create, copy, delete, None,
             zoomIn, zoom, zoomOut, fitWindow, fitWidth)
 
         self.actions.advanced = (
@@ -879,27 +876,16 @@ class MainWindow(QMainWindow, WindowMixin):
             item = QListWidgetItem(imgPath)
             self.fileListWidget.addItem(item)
 
-    def openPrevImg(self, _value=False):
-        if not self.mayContinue():
-            return
-
-        if len(self.mImgList) <= 0:
-            return
-
-        if self.filename is None:
-            return
-
-        currIndex = self.mImgList.index(self.filename)
-        if currIndex -1 >= 0:
-            filename = self.mImgList[currIndex-1]
-            if filename:
-                self.loadFile(filename)
-
     def openNextImg(self, _value=False):
-        # Proceding next image without dialog if having any label
-        if self.autoSaving is True and self.defaultSaveDir is not None:
-            if self.dirty is True and self.hasLabels():
-                self.saveFile()
+        if os.path.exists(unicode(self.filename)):
+            imgFileName = os.path.basename(self.filename)
+            (saveDirRoot, CatDir) = os.path.split(str(self.defaultSaveDir))
+            savedPath = os.path.join(saveDirRoot, 'skipped', CatDir)
+            savedPathIMG = os.path.join(savedPath, imgFileName)
+
+            self.mkdir_p(savedPath)
+            print 'skipping file. move ' + unicode(self.filename) + ' -> ' + savedPath
+            os.rename(self.filename, savedPathIMG)
 
         if not self.mayContinue():
             return
@@ -938,8 +924,18 @@ class MainWindow(QMainWindow, WindowMixin):
                 print 'handle the image:' + self.filename
                 imgFileName = os.path.basename(self.filename)
                 savedFileName = os.path.splitext(imgFileName)[0] + LabelFile.suffix
-                savedPath = os.path.join(str(self.defaultSaveDir), savedFileName)
-                self._saveFile(savedPath)
+                (saveDirRoot, CatDir) = os.path.split(str(self.defaultSaveDir))
+                savedPath = os.path.join(saveDirRoot, 'done', CatDir)
+
+                self.mkdir_p(savedPath)
+
+                savedPathXML = os.path.join(savedPath, savedFileName)
+                savedPathIMG = os.path.join(savedPath, imgFileName)
+                print 'xml -> ' + savedPathXML + '  img -> ' + savedPathIMG
+                self._saveFile(savedPathXML)
+
+                os.rename(self.filename, savedPathIMG)
+                self.openNextImg()
             else:
                 self._saveFile(self.filename if self.labelFile\
                                          else self.saveFileDialog())
@@ -1077,6 +1073,10 @@ class MainWindow(QMainWindow, WindowMixin):
         tVocParseReader = PascalVocReader(filename)
         shapes = tVocParseReader.getShapes()
         self.loadLabels(shapes)
+
+    def mkdir_p(self, Path):
+        if not os.path.exists(Path):
+            os.makedirs(Path)
 
 class Settings(object):
     """Convenience dict-like wrapper around QSettings."""
