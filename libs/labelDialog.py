@@ -27,6 +27,7 @@ class LabelDialog(QDialog):
             for item in listItem:
                 self.listWidget.addItem(item)
             self.listWidget.itemDoubleClicked.connect(self.listItemClick)
+            self.listWidget.setMinimumHeight(16*50)
             layout.addWidget(self.listWidget)
 
         self.setLayout(layout)
