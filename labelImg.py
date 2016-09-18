@@ -427,9 +427,9 @@ class MainWindow(QMainWindow, WindowMixin):
         self.statusBar().showMessage(message, delay)
 
     def resetState(self):
-        self.itemsToShapes.clear()
-        self.shapesToItems.clear()
-        self.labelList.clear()
+        # self.itemsToShapes.clear()
+        # self.shapesToItems.clear()
+        # self.labelList.clear()
         self.filename = None
         self.imageData = None
         self.labelFile = None
@@ -679,6 +679,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def loadFile(self, filename=None):
         """Load the specified file, or the last opened file if None."""
+        shapes = self.canvas.shapes
         self.resetState()
         self.canvas.setEnabled(False)
         if filename is None:
@@ -724,6 +725,7 @@ class MainWindow(QMainWindow, WindowMixin):
             if self.labelFile:
                 self.loadLabels(self.labelFile.shapes)
             self.setClean()
+            self.canvas.shapes = shapes
             self.canvas.setEnabled(True)
             self.adjustScale(initial=True)
             self.paintCanvas()
