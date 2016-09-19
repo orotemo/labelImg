@@ -1,19 +1,19 @@
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt4 import QtGui, QtCore
+from PyQt4.Qt import *
 
 from lib import newIcon, labelValidator
 
-BB = QDialogButtonBox
+BB = QtGui.QDialogButtonBox
 
-class LabelDialog(QDialog):
+class LabelDialog(QtGui.QDialog):
 
     def __init__(self, text="Enter object label", parent=None, listItem=None):
         super(LabelDialog, self).__init__(parent)
-        self.edit = QLineEdit()
+        self.edit = QtGui.QLineEdit()
         self.edit.setText(text)
         self.edit.setValidator(labelValidator())
         self.edit.editingFinished.connect(self.postProcess)
-        layout = QVBoxLayout()
+        layout = QtGui.QVBoxLayout()
         layout.addWidget(self.edit)
         self.buttonBox = bb = BB(BB.Ok | BB.Cancel, Qt.Horizontal, self)
         bb.button(BB.Ok).setIcon(newIcon('done'))
@@ -23,7 +23,7 @@ class LabelDialog(QDialog):
         layout.addWidget(bb)
 
         if listItem is not None and len(listItem) > 0:
-            self.listWidget = QListWidget(self)
+            self.listWidget = QtGui.QListWidget(self)
             for item in listItem:
                 self.listWidget.addItem(item)
             self.listWidget.itemDoubleClicked.connect(self.listItemClick)

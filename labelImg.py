@@ -4,13 +4,14 @@ import _init_path
 import os.path
 import re
 import sys
+import sip
 import subprocess
 
 from functools import partial
 from collections import defaultdict
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt4 import QtGui, QtCore
+from PyQt4.Qt import *
 
 import resources
 
@@ -46,7 +47,7 @@ class WindowMixin(object):
         return toolbar
 
 
-class MainWindow(QMainWindow, WindowMixin):
+class MainWindow(QtGui.QMainWindow, WindowMixin):
     FIT_WINDOW, FIT_WIDTH, MANUAL_ZOOM = range(3)
 
     def __init__(self, filename=None):
@@ -76,7 +77,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.loadPredefinedClasses()
         # Main widgets and related state.
         self.labelDialog = LabelDialog(parent=self, listItem=self.labelHist)
-        self.labelList = QListWidget()
+        self.labelList = QtGui.QListWidget()
         self.itemsToShapes = {}
         self.shapesToItems = {}
 
@@ -102,7 +103,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.dock.setWidget(self.labelListContainer)
 
         # Tzutalin 20160906 : Add file list and dock to move faster
-        self.fileListWidget = QListWidget()
+        self.fileListWidget = QtGui.QListWidget()
         self.fileListWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked)
         filelistLayout = QVBoxLayout()
         filelistLayout.setContentsMargins(0, 0, 0, 0)
@@ -538,7 +539,7 @@ class MainWindow(QMainWindow, WindowMixin):
         print 'shapeSelectionChanged'
 
     def addLabel(self, shape):
-        item = QListWidgetItem(shape.label)
+        item = QtGui.QListWidgetItem(shape.label)
         item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
         item.setCheckState(Qt.Checked)
         self.itemsToShapes[item] = shape
@@ -875,7 +876,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.mImgList = self.scanAllImages(dirpath)
         self.openNextImg()
         for imgPath in self.mImgList:
-            item = QListWidgetItem(imgPath)
+            item = QtGui.QListWidgetItem(imgPath)
             self.fileListWidget.addItem(item)
 
     def openNextImg(self, _value=False):
@@ -1118,7 +1119,7 @@ def read(filename, default=None):
 
 def main(argv):
     """Standard boilerplate Qt application code."""
-    app = QApplication(argv)
+    app = QtGui.QApplication(argv)
     app.setApplicationName(__appname__)
     app.setWindowIcon(newIcon("app"))
     win = MainWindow(argv[1] if len(argv) == 2 else None)
